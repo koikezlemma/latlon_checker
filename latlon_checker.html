@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<title>緯度経度チェック</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<style type="text/css">
+  html {
+    height: 100% ;
+  }
+
+  body {
+    height: 100%; margin: 0px; padding: 0px ;
+  }
+
+  #map_canvas {
+    height: 55% ;
+  }
+</style>
+<script type="text/javascript">
+  //<![CDATA[
+  var map;
+  var marker_center;
+  function load() {
+    var mapOptions = {
+      zoom: 12,
+      center: new google.maps.LatLng(35.63051, 139.49478)
+    };
+    map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+    google.maps.event.addListener(map, 'center_changed', display_latlon);
+    google.maps.event.addListener(map, 'click', display_latlon);
+    var image = 'center.gif';
+    marker_center = new google.maps.Marker({
+        position: map.getCenter(),
+        map: map,
+        icon: "http://maps.google.com/mapfiles/ms/micons/hospitals.png"
+    });
+    display_latlon();
+  }
+
+  function map_move1() {
+    var lat_tmp = parseFloat(document.latlon1.lat.value);
+    var lon_tmp = parseFloat(document.latlon1.lon.value);
+    map.setCenter({lat: lat_tmp, lng: lon_tmp});
+  }
+  function map_move2() {
+    var lat_tmp = parseFloat(document.latlon2.lat.value) / 1000000;
+    var lon_tmp = parseFloat(document.latlon2.lon.value) / 1000000;
+    map.setCenter({lat: lat_tmp, lng: lon_tmp});
+  }
+  function map_move3() {
+    var lat_tmp = parseFloat(document.latlon3.lat.value) / 3600000;
+    var lon_tmp = parseFloat(document.latlon3.lon.value) / 3600000;
+    map.setCenter({lat: lat_tmp, lng: lon_tmp});
+  }
+  function map_move4() {
+    var lat_tokyo_tmp = parseFloat(document.latlon4.lat.value) / 3600000;
+    var lon_tokyo_tmp = parseFloat(document.latlon4.lon.value) / 3600000;
+    var lat_tmp = lat_tokyo_tmp - lat_tokyo_tmp * 0.00010695 + lon_tokyo_tmp * 0.000017464 + 0.0046017;
+    var lon_tmp = lon_tokyo_tmp - lat_tokyo_tmp * 0.000046038 - lon_tokyo_tmp * 0.000083043 + 0.010040;
+    map.setCenter({lat: lat_tmp, lng: lon_tmp});
+  }
+
+  function latLonStr(lat,lon) {
+    return '(' + lat + ', ' + lon + ')';
+  }
+
+  function display_latlon() {
+    marker_center.setPosition(map.getCenter());
+    var cent = map.getCenter();
+    var lat = cent.lat();
+    var lon = cent.lng();　
+    document.getElementById("message1").innerHTML = latLonStr(lat,lon);
+    document.getElementById("message2").innerHTML = latLonStr(Math.round(lat*1000*1000),Math.round(lon*1000*1000));
+    document.getElementById("message3").innerHTML = latLonStr(Math.round(lat*3600*1000),Math.round(lon*3600*1000));
+    latTokyo = lat + 0.00010696*lat - 0.000017467*lon - 0.0046020;
+    lonTokyo = lon + 0.000046047*lat + 0.000083049*lon - 0.010041;
+    document.getElementById("message4").innerHTML = latLonStr(Math.round(latTokyo*3600*1000),Math.round(lonTokyo*3600*1000));
+  }
+  //]]>
+  </script>
+</head>
+<body onload="load()">
+<div id="map_canvas" ></div>
+<br />
+(緯度，経度)
+<p>
+■ 世界測地系(度): <span id="message1"></span>
+<form name="latlon1" action="#">
+緯度 = <input type="text" name="lat">,
+経度 = <input type="text" name="lon">
+<input type="button" value="移動" onclick="map_move1()">
+</form><br />
+■ 世界測地系(度*10<sup>6</sup>): <span id="message2"></span>
+<form name="latlon2" action="#">
+緯度 = <input type="text" name="lat">,
+経度 = <input type="text" name="lon">
+<input type="button" value="移動" onclick="map_move2()">
+</form><br />
+■ 世界測地系(ミリ秒): <span id="message3"></span>
+<form name="latlon3" action="#">
+緯度 = <input type="text" name="lat">,
+経度 = <input type="text" name="lon">
+<input type="button" value="移動" onclick="map_move3()">
+</form><br />
+■ 日本測地系(ミリ秒): <span id="message4"></span>
+<form name="latlon4" action="#">
+緯度 = <input type="text" name="lat">,
+経度 = <input type="text" name="lon">
+<input type="button" value="移動" onclick="map_move4()">
+</form><br />
+</p>
+</body>
+</html>
